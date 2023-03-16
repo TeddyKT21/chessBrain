@@ -1,4 +1,8 @@
 import random
+import time
+import cProfile
+import re
+
 from boards.chess_board import ChessBoard
 import converters
 from move_generator.legal_pos_generator import LegalPosGenerator
@@ -38,13 +42,23 @@ def main_program():
         str_board.str_array[1, k] = 'wp'
         str_board.str_array[6, k] = 'bp'
 
+    # str_board.str_array[0, 7] = 'wke'
+    # str_board.str_array[1, 7] = 'wp'
+    # str_board.str_array[2, 6] = 'wp'
+    # str_board.str_array[6, 3] = 'bke'
+    # str_board.str_array[7, 2] = 'wr'
+    # str_board.str_array[0, 2] = 'br'
+    # str_board.str_array[1, 4] = 'bk'
+    #
+    # str_board.str_array[7, 0] = 'bb'
+    # str_board.str_array[4, 3] = 'bp'
 
     long_num = converters.str_board_to_binary_number(str_board)
     print('original number:\n', long_num, '\n', 'length:', len(long_num), '\n')
     random_board = ChessBoard(long_num)
     print(random_board)
 
-    for k in range(100):
+    for k in range(200):
         generator = LegalPosGenerator()
         moves = generator.generate_legal_positions(long_num)
         # print(ChessBoard(long_num).byte_board.byte_array)
@@ -52,6 +66,7 @@ def main_program():
         counter = 0
         while counter < 250 and len(moves) > 0 and len(generator.piece_array) > 2:
             next_move = select_move(moves)
+            # print(generator.move_array[next_move])
             moves = generator.make_move(next_move)
             # print(generator.byte_board)
             counter += 1
@@ -61,8 +76,8 @@ def main_program():
         print(k)
 
 
-# main_program()
-import cProfile
-import re
-
-cProfile.run('re.compile(main_program())', sort='time')
+start = time.time()
+main_program()
+# cProfile.run('re.compile(main_program())', sort='time')
+end = time.time()
+print('total run time: ', end-start)

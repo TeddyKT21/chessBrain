@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+
+import converters
 from converters import byte_piece_to_index_dict, color_bit_dict, can_castle_king_side, can_castle_queen_side
 from move_generator.board_util import remove_if_out_of_range
 
@@ -35,9 +37,13 @@ class Piece(ABC):
         self.color_bit = color_bit_dict[byte_board.byte_array[i, j]]
         self.board_size = byte_board.byte_array.shape[0]
         self.piece_index = byte_piece_to_index_dict[byte_board.byte_array[i, j]]
+        self.legal_move_array = []
+        self.was_updated = False
 
     def generate_piece_moves(self, move=None):
+        self.was_updated = False
         if move is None or self.was_moved(move) or self.move_does_influence(move):
+            self.was_updated = True
             if move is not None and self.was_moved(move):
                 self.i = move[0][0]
                 self.j = move[0][1]
@@ -104,7 +110,9 @@ class King(Piece):
                (len(move) == 4 and color_bit_dict[move[1][2]] == self.color_bit)
 
     def generate_piece_moves(self, move=None):
+        self.was_updated = False
         if move is None or self.was_moved(move) or self.move_does_influence(move):
+            self.was_updated = True
             if move is not None and self.was_moved(move):
                 if len(move) == 2:
                     self.i = move[0][0]
@@ -219,7 +227,9 @@ class Rook(Piece):
         return answer
 
     def generate_piece_moves(self, move=None):
+        self.was_updated = False
         if move is None or self.was_moved(move) or self.move_does_influence(move):
+            self.was_updated = True
             if move is not None and self.was_moved(move):
                 if len(move) == 2:
                     self.i = move[0][0]
@@ -367,6 +377,9 @@ class Pawn(Piece):
         return possible_locations
 
     def move_does_influence(self, move):
+        if self.en_passant:
+            self.reset_en_passant()
+            return True
         self.reset_en_passant()
         i = self.i
         j = self.j
@@ -403,6 +416,31 @@ class Pawn(Piece):
 
     def _convert_locations_to_moves(self, possible_locations):
         super()._convert_locations_to_moves(possible_locations)
+        last_row = 0 if self.color_bit == 1 else 7
+        promotion_moves = [m for m in self.move_array if m[0][0] == last_row]
+        if promotion_moves:
+            self.move_array = [m for m in self.move_array if m not in promotion_moves]
+            possible_promotions = []
+            if self.color_bit == 1:
+                for m in promotion_moves:
+                    i = m[0][0]
+                    j = m[0][1]
+
+                    possible_promotions += [((i, j, converters.black_queen_value), m[1]),
+                                            ((i, j, converters.black_rook_value), m[1]),
+                                            ((i, j, converters.black_bishop_value), m[1]),
+                                            ((i, j, converters.black_knight_value), m[1])]
+            else:
+                for m in promotion_moves:
+                    i = m[0][0]
+                    j = m[0][1]
+
+                    possible_promotions += [((i, j, converters.white_queen_value), m[1]),
+                                            ((i, j, converters.white_rook_value), m[1]),
+                                            ((i, j, converters.white_bishop_value), m[1]),
+                                            ((i, j, converters.white_knight_value), m[1])]
+            self.move_array += possible_promotions
+
         if self.en_passant is not None:
             byte_piece = self.byte_board.byte_array[self.i, self.j]
             move = ((self.en_passant[0], self.en_passant[1], byte_piece),

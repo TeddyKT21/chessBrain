@@ -14,6 +14,19 @@ byte_piece_to_index_dict = {131: 6, 129: 6, 67: 5, 65: 5, 35: 4, 33: 4, 19: 3, 1
 
 color_bit_dict = {131: 1, 129: 0, 67: 1, 65: 0, 35: 1, 33: 0, 19: 1, 17: 0, 11: 1, 9: 0, 7: 1, 5: 0}
 
+white_king_value = 129
+white_queen_value = 65
+white_rook_value = 33
+white_bishop_value = 17
+white_knight_value = 9
+white_pawn_value = 5
+black_king_value = 131
+black_queen_value = 67
+black_rook_value = 35
+black_bishop_value = 19
+black_knight_value = 11
+black_pawn_value = 7
+
 
 def binary_to_byte_board(binary_number):
     byte_array = np.ndarray((board_size, board_size), dtype=np.uint8)
