@@ -2,7 +2,7 @@ import unittest
 
 import converters
 from boards.str_board import StrBoard
-from move_generator.legal_pos_generator import LegalPosGenerator
+from move_generation.legal_pos_generator import LegalPosGenerator
 
 
 class MovesTestCase(unittest.TestCase):

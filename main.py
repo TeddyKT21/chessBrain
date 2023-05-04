@@ -1,83 +1,70 @@
 import random
 import time
+
+import numpy as np
 import cProfile
 import re
 
-from boards.chess_board import ChessBoard
-import converters
-from move_generator.legal_pos_generator import LegalPosGenerator
-from boards.str_board import StrBoard
-
-
-def select_move(moves):
-    prefered_moves = list(filter(lambda move: move[0][2] < 100, moves))
-    if not prefered_moves:
-        random_num = random.randrange(0, len(moves))
-        return random_num
-    random_num = random.randrange(0, len(prefered_moves))
-    return random_num
+from move_generation.short_board import ShortBoard
+from move_generation.move_generator import MoveGenerator
 
 
 def main_program():
-    str_board = StrBoard()
-    str_board.str_array[0, 3] = 'wke'
-    str_board.str_array[0, 0] = 'wr'
-    str_board.str_array[0, 7] = 'wr'
-    str_board.str_array[0, 1] = 'wk'
-    str_board.str_array[0, 6] = 'wk'
-    str_board.str_array[0, 2] = 'wb'
-    str_board.str_array[0, 5] = 'wb'
-    str_board.str_array[0, 4] = 'wq'
+    moves = 0
+    n = 200
 
-    str_board.str_array[7, 3] = 'bke'
-    str_board.str_array[7, 0] = 'br'
-    str_board.str_array[7, 7] = 'br'
-    str_board.str_array[7, 1] = 'bk'
-    str_board.str_array[7, 6] = 'bk'
-    str_board.str_array[7, 2] = 'bb'
-    str_board.str_array[7, 5] = 'bb'
-    str_board.str_array[7, 4] = 'bq'
+    for m in range(n):
+        state = 0b0000000011110
+        short_array = np.array([[8, 2, 4, 32, 16, 4, 2, 8],
+                                [1, 1, 1, 1, 1, 1, 1, 1],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [64, 64, 64, 64, 64, 64, 64, 64],
+                                [512, 128, 256, 2048, 1024, 256, 128, 512]], dtype=np.short)
+        # short_array = np.array([[8, 64, 0, 0, 32, 0, 64, 64],
+        #                         [0, 64, 0, 0, 1, 0, 64, 64],
+        #                         [0, 0, 0, 16, 0, 0, 64, 64],
+        #                         [0, 0, 0, 0, 0, 0, 64, 64],
+        #                         [0, 0, 0, 0, 0, 0, 64, 64],
+        #                         [0, 0, 0, 0, 0, 0, 64, 64],
+        #                         [0, 0, 0, 0, 0, 0, 64, 64],
+        #                         [0, 0, 0, 0, 0, 0, 64, 2048]], dtype=np.short)
+        board = ShortBoard(short_array, state)
+        # print(board)
+        game_engine = MoveGenerator(board)
+        k = make_random_moves(game_engine, 250)
+        revert_game(game_engine)
+        make_random_moves(game_engine, 250)
+        print(m, k)
+        # if k < 249:
+        #     print(move_generator.short_board)
+        moves += k
+    print('avg length: ', moves / n)
 
-    for k in range(8):
-        str_board.str_array[1, k] = 'wp'
-        str_board.str_array[6, k] = 'bp'
 
-    # str_board.str_array[0, 7] = 'wke'
-    # str_board.str_array[1, 7] = 'wp'
-    # str_board.str_array[2, 6] = 'wp'
-    # str_board.str_array[6, 3] = 'bke'
-    # str_board.str_array[7, 2] = 'wr'
-    # str_board.str_array[0, 2] = 'br'
-    # str_board.str_array[1, 4] = 'bk'
-    #
-    # str_board.str_array[7, 0] = 'bb'
-    # str_board.str_array[4, 3] = 'bp'
+def revert_game(game_engine):
+    while game_engine.previous_moves_stack:
+        game_engine.revert()
+        # print(move_generator.short_board)
 
-    long_num = converters.str_board_to_binary_number(str_board)
-    print('original number:\n', long_num, '\n', 'length:', len(long_num), '\n')
-    random_board = ChessBoard(long_num)
-    print(random_board)
 
-    for k in range(200):
-        generator = LegalPosGenerator()
-        moves = generator.generate_legal_positions(long_num)
-        # print(ChessBoard(long_num).byte_board.byte_array)
-        # print('\n')
-        counter = 0
-        while counter < 250 and len(moves) > 0 and len(generator.piece_array) > 2:
-            next_move = select_move(moves)
-            # print(generator.move_array[next_move])
-            moves = generator.make_move(next_move)
-            # print(generator.byte_board)
-            counter += 1
-        if counter < 250:
-            print(generator.byte_board)
-            print('done ! after:', counter, " positions")
-        print(k)
+def make_random_moves(game_engine, n):
+    for k in range(n):
+        if not game_engine.move_array:
+            break
+        if len(game_engine.piece_array) < 3:
+            break
+        move_index = random.randint(0, len(game_engine.move_array) - 1)
+        game_engine.make_move(move_index)
+        # print(move_generator.short_board)
+        # print(k)
+    return k
 
 
 start = time.time()
 main_program()
-# cProfile.run('re.compile(main_program())', sort='time')
 end = time.time()
-print('total run time: ', end-start)
+print('total run time: ', end - start)
+# cProfile.run('re.compile(main_program())', sort='tottime')
