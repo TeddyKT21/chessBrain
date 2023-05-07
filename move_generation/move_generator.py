@@ -5,7 +5,7 @@ from move_generation.short_board import board_size, ShortBoard
 
 
 class MoveGenerator:
-    def __init__(self, short_board=None):
+    def __init__(self, short_board):
         self.piece_array = []
         self.white_pieces = []
         self.black_pieces = []
@@ -25,7 +25,6 @@ class MoveGenerator:
         self.update()
 
     def generate_pieces(self):
-        board_size = self.short_board.short_array.shape[0]
         for i in range(board_size):
             for j in range(board_size):
                 piece_number = self.short_board.short_array[i, j]

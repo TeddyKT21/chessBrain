@@ -1,14 +1,17 @@
 import numpy as np
 
+from game_engine.evaluator import Evaluator
 from move_generation.move_generator import MoveGenerator
+from move_generation.short_board import ShortBoard
 
 
 class GameEngine:
-    def __init__(self, evaluator, repository, short_board=None, iterations=1, game_length_limit=250):
-        self.initial_board = short_board
-        self.move_generator = MoveGenerator(short_board)
+    def __init__(self, repository, eval_net, iterations=1, game_length_limit=250):
+        self.board = None
+        self.move_generator = None
         self.iterations = iterations
-        self.evaluator = evaluator
+        self.evaluator = None
+        self.eval_net = eval_net
         self.repository = repository
         self.game_length_limit = game_length_limit
 
@@ -21,14 +24,18 @@ class GameEngine:
     def play(self):
         results = []
         for n in range(self.iterations):
-            self.move_generator = MoveGenerator(self.initial_board)
+            print(n)
+            board = ShortBoard()
+            self.move_generator = MoveGenerator(board)
+            self.evaluator = Evaluator(self.eval_net, board)
             k = 0
             while k < self.game_length_limit:
+                print(k)
                 self._make_move()
                 if not self.move_generator.move_array:
                     results.append(self.get_result())
                     break
-                if len(self.move_generator.piece_array < 3):
+                if len(self.move_generator.piece_array) < 3:
                     break
                 # if k % 20 == 0:
                 #     self.repository.add(self.evaluator.bit_position)
@@ -42,7 +49,8 @@ class GameEngine:
         return 0
 
     def get_move(self, move_array):
-        move_values = np.zeros(len(move_array), np.float)
+        move_values = np.zeros(len(move_array), float)
         for i in range(len(move_array)):
-            move_values[i] = self.evaluator.evaluate(move_array[i])
+            result = self.evaluator.evaluate(move_array[i])
+            move_values[i] = result
         return np.argmax(move_values)
