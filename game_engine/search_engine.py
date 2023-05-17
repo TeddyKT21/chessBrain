@@ -2,6 +2,7 @@ import numpy as np
 import random
 
 from game_engine.evaluator import Evaluator
+from move_generation.converters import get_turn
 from move_generation.move_generator import MoveGenerator
 from move_generation.short_board import ShortBoard
 
@@ -29,10 +30,10 @@ class GameEngine:
             self.move_generator = MoveGenerator(board)
             self.evaluator = Evaluator(self.eval_net, board)
             k = 0
-            game = {'positions':[], 'result': 0}
+            game = {'positions': [], 'result': 0}
             while k < self.game_length_limit:
-                print(k)
                 self._make_move()
+                # print(self.move_generator.short_board, f'move number {k}')
                 if not self.move_generator.move_array:
                     game['result'] = self.get_result()
                     break
@@ -40,9 +41,12 @@ class GameEngine:
                     break
                 num = random.randint(0, self.save_freq)
                 if num == self.save_freq:
-                    game['positions'].append(self.evaluator.bit_position.tolist())
+                    game['positions'] += (self.evaluator.bit_position.tolist())
                 k += 1
-            self.repository.save_game(game)
+                if game['result']:
+                    self.repository.save_game(game)
+            if n % 10 == 0:
+                print(n)
 
     def get_result(self):
         if self.move_generator.black_king.checking_pieces:
@@ -56,4 +60,5 @@ class GameEngine:
         for i in range(len(move_array)):
             result = self.evaluator.evaluate(move_array[i])
             move_values[i] = result
-        return np.argmax(move_values)
+        return np.argmax(move_values) if get_turn(self.move_generator.short_board.state) == 0 else np.argmin(
+            move_values)

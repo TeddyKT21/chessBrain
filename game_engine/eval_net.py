@@ -11,18 +11,29 @@ import torch.nn.functional as F
 class EvalNet(nn.Module):
     def __init__(self):
         super(EvalNet, self).__init__()
-        self._layers = [nn.Linear(789, 400, dtype=torch.float32),
-                        nn.Linear(400, 80, dtype=torch.float32),
-                        nn.Linear(80, 50, dtype=torch.float32),
-                        nn.Linear(50, 30, dtype=torch.float32),
-                        nn.Linear(30, 15, dtype=torch.float32),
-                        nn.Linear(15, 1, dtype=torch.float32)]
+        self.layer1 = nn.Linear(789, 400, dtype=torch.float32)
+        self.layer2 = nn.Linear(400, 80, dtype=torch.float32)
+        self.layer3 = nn.Linear(80, 50, dtype=torch.float32)
+        self.layer4 = nn.Linear(50, 30, dtype=torch.float32)
+        self.layer5 = nn.Linear(30, 15, dtype=torch.float32)
+        self.layer6 = nn.Linear(15, 1, dtype=torch.float32)
+        self.layers = [self.layer1,
+                       self.layer2,
+                       self.layer3,
+                       self.layer4,
+                       self.layer5,
+                       self.layer6]
 
     def predict(self, data):
         res = torch.from_numpy(data)
-        for layer in self._layers:
+        for layer in self.layers:
             res = F.sigmoid(layer(res))
         return res
+
+    def forward(self, data):
+        for layer in self.layers:
+            data = F.sigmoid(layer(data))
+        return data
 
 
 # class Net(nn.Module):
