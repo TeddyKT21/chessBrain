@@ -8,21 +8,28 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+def init_weights(m):
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_uniform_(m.weight)  # Random initialization for weights
+        nn.init.zeros_(m.bias)
+
+
 class EvalNet(nn.Module):
     def __init__(self):
         super(EvalNet, self).__init__()
-        self.layer1 = nn.Linear(789, 400, dtype=torch.float32)
-        self.layer2 = nn.Linear(400, 80, dtype=torch.float32)
-        self.layer3 = nn.Linear(80, 50, dtype=torch.float32)
-        self.layer4 = nn.Linear(50, 30, dtype=torch.float32)
-        self.layer5 = nn.Linear(30, 15, dtype=torch.float32)
-        self.layer6 = nn.Linear(15, 1, dtype=torch.float32)
+        self.layer1 = nn.Linear(789, 600, dtype=torch.float32)
+        self.layer2 = nn.Linear(600, 400, dtype=torch.float32)
+        self.layer3 = nn.Linear(400, 300, dtype=torch.float32)
+        self.layer4 = nn.Linear(300, 200, dtype=torch.float32)
+        self.layer5 = nn.Linear(200, 100, dtype=torch.float32)
+        self.layer6 = nn.Linear(100, 1, dtype=torch.float32)
         self.layers = [self.layer1,
                        self.layer2,
                        self.layer3,
                        self.layer4,
                        self.layer5,
                        self.layer6]
+        self.apply(init_weights)
 
     def predict(self, data):
         res = torch.from_numpy(data)
@@ -34,7 +41,6 @@ class EvalNet(nn.Module):
         for layer in self.layers:
             data = F.sigmoid(layer(data))
         return data
-
 
 # class Net(nn.Module):
 #

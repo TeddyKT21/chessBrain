@@ -19,7 +19,7 @@ def main_program():
         model_collection = f"modelCollection{epoch}"
         net = EvalNet() if epoch == 0 else repository.get_model()
         repository = Repository(game_collection, model_collection)
-        game_engine = GameEngine(repository, net, 100, 400, 30)
+        game_engine = GameEngine(repository, net, 10, 400, 30)
 
         start = time.time()
         game_engine.play()
@@ -37,8 +37,8 @@ def main_program():
 
 
 
-# start = time.time()
-# main_program()
-# end = time.time()
-# print('total run time: ', end - start)
-cProfile.run('re.compile(main_program())', sort='tottime')
+start = time.time()
+main_program()
+end = time.time()
+print('total run time: ', end - start)
+# cProfile.run('re.compile(main_program())', sort='tottime')

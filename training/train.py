@@ -23,7 +23,8 @@ def train(net, repository):
     data_set = get_data_set(repository)
     # train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
     # test_dataloader = DataLoader(test_data, batch_size=64, shuffle=True)
-
+    if len(data_set) < 1:
+        return
     dataloader = DataLoader(data_set,batch_size=len(data_set), shuffle=True)
 
     for inputs, labels in dataloader:

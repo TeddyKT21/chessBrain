@@ -36,7 +36,6 @@ class GameEngine:
                 # print(self.move_generator.short_board, f'move number {k}')
                 if not self.move_generator.move_array:
                     game['result'] = self.get_result()
-                    break
                 if len(self.move_generator.piece_array) < 3:
                     break
                 num = random.randint(0, self.save_freq)
@@ -45,6 +44,7 @@ class GameEngine:
                 k += 1
                 if game['result']:
                     self.repository.save_game(game)
+                    break
             if n % 10 == 0:
                 print(n)
 
