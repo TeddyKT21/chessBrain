@@ -17,12 +17,9 @@ def get_data_set(repository):
 
 
 def train(net, repository):
-    criterion = nn.CrossEntropyLoss()
-    # Step 4: Define the Optimizer
+    criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
     data_set = get_data_set(repository)
-    # train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
-    # test_dataloader = DataLoader(test_data, batch_size=64, shuffle=True)
     if len(data_set) < 1:
         return
     dataloader = DataLoader(data_set,batch_size=len(data_set), shuffle=True)
@@ -30,7 +27,7 @@ def train(net, repository):
     for inputs, labels in dataloader:
         optimizer.zero_grad()
         outputs = net(inputs)
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs,  labels.view(-1, 1).float())
         loss.backward()
         optimizer.step()
 

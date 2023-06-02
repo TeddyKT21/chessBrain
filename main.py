@@ -12,13 +12,13 @@ from training.train import train
 
 def main_program():
     epochs = 100
-    repository = Repository(f"gameCollection0", f"modelCollection0")
+    repository = Repository(f"gameCollection0")
     for epoch in range(epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
         model_collection = f"modelCollection{epoch}"
         net = EvalNet() if epoch == 0 else repository.get_model()
-        repository = Repository(game_collection, model_collection)
+        repository = Repository(game_collection)
         game_engine = GameEngine(repository, net, 10, 400, 30)
 
         start = time.time()

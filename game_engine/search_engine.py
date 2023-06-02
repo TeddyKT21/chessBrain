@@ -8,7 +8,7 @@ from move_generation.short_board import ShortBoard
 
 
 class GameEngine:
-    def __init__(self, repository, eval_net, iterations=1, game_length_limit=250, save_freq=15):
+    def __init__(self, repository, eval_net, iterations=1, game_length_limit=250, save_freq=15, training=True):
         self.board = None
         self.move_generator = None
         self.iterations = iterations
@@ -17,6 +17,7 @@ class GameEngine:
         self.repository = repository
         self.game_length_limit = game_length_limit
         self.save_freq = save_freq
+        self.training = training
 
     def _make_move(self):
         selected_move_index = self.get_move(self.move_generator.move_array)
@@ -42,7 +43,7 @@ class GameEngine:
                 if num == self.save_freq:
                     game['positions'] += (self.evaluator.bit_position.tolist())
                 k += 1
-                if game['result']:
+                if not self.move_generator.move_array:
                     self.repository.save_game(game)
                     break
             if n % 10 == 0:
@@ -60,5 +61,20 @@ class GameEngine:
         for i in range(len(move_array)):
             result = self.evaluator.evaluate(move_array[i])
             move_values[i] = result
-        return np.argmax(move_values) if get_turn(self.move_generator.short_board.state) == 0 else np.argmin(
-            move_values)
+
+        turn = get_turn(self.move_generator.short_board.state)
+        convert_factor = 1 - 2 * turn
+        refactored_values = list(map((lambda v: (v * convert_factor)), move_values))
+        min_val = min(refactored_values)
+        refactored_values = list(map((lambda v: (v - min_val + 0.0005)), refactored_values))
+        return np.argmax(refactored_values) if not self.training else self._get_training_move(refactored_values)
+
+    def _get_training_move(self, move_values):
+        total = sum(move_values)
+        random_num = random.uniform(0, total)
+        total = 0
+        for index, v in enumerate(move_values):
+            total += v
+            if total >= random_num:
+                return index
+        print('total: ', total, ' random num: ', random_num)
