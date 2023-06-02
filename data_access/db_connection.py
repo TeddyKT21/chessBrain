@@ -1,4 +1,5 @@
 import json
+import os
 
 import numpy as np
 import torch
@@ -28,6 +29,7 @@ class Repository:
 
     def get_model(self):
         model = EvalNet()
-        model.load_state_dict(torch.load(model_save_location))
+        if os.path.exists(model_save_location):
+            model.load_state_dict(torch.load(model_save_location))
         model.eval()
         return model

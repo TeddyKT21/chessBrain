@@ -20,7 +20,7 @@ class GameEngine:
         self.training = training
 
     def _make_move(self):
-        selected_move_index = self.get_move(self.move_generator.move_array)
+        selected_move_index = self._get_move(self.move_generator.move_array)
         selected_move = self.move_generator.move_array[selected_move_index]
         self.evaluator.make_move(selected_move)
         self.move_generator.make_move(selected_move_index)
@@ -56,7 +56,7 @@ class GameEngine:
             return 1
         return 0
 
-    def get_move(self, move_array):
+    def _get_move(self, move_array):
         move_values = np.zeros(len(move_array), float)
         for i in range(len(move_array)):
             result = self.evaluator.evaluate(move_array[i])
