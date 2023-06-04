@@ -13,7 +13,7 @@ from training.train import train
 
 def main_program():
     repository = Repository(f"gameCollectionRandom")
-    game_engine = GameEngine(repository, DummyNet(), 1000000, 400, 30, False)
+    game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False)
     start = time.time()
     print(f'generating initial random games...')
     game_engine.play()
