@@ -44,7 +44,8 @@ class GameEngine:
                     game['positions'] += (self.evaluator.bit_position.tolist())
                 k += 1
                 if not self.move_generator.move_array:
-                    self.repository.save_game(game)
+                    if game['result']:
+                        self.repository.save_game(game)
                     break
             if n % 10 == 0:
                 print(n)

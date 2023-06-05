@@ -12,28 +12,29 @@ from training.train import train
 
 
 def main_program():
-    repository = Repository(f"gameCollectionRandom")
-    game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False)
-    start = time.time()
-    print(f'generating initial random games...')
-    game_engine.play()
-    end = time.time()
-    print('randomplay stage completed after: ', end - start)
-    print('-------------------------------------------------------------------------------------------------')
-    net = repository.get_model()
-    start = time.time()
-    train(net, repository)
-    end = time.time()
-    print('training  stage completed after: ', end - start)
-    repository.save_model(net)
-    print('-------------------------------------------------------------------------------------------------')
+    for i in range(10):
+        print(f"random epoc {i}")
+        repository = Repository(f"gameCollectionRandom{0}")
+        game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False)
+        start = time.time()
+        game_engine.play()
+        end = time.time()
+        print('random play stage completed after: ', end - start)
+        print('-------------------------------------------------------------------------------------------------')
+
+        net = repository.get_model()
+        start = time.time()
+        train(net, repository)
+        end = time.time()
+        print('training (on random) stage completed after: ', end - start)
+        repository.save_model(net)
+        print('-------------------------------------------------------------------------------------------------')
 
     epochs = 100
     repository = Repository(f"gameCollection0")
     for epoch in range(epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
-        model_collection = f"modelCollection{epoch}"
         net = repository.get_model()
         repository = Repository(game_collection)
         game_engine = GameEngine(repository, net, 500, 400, 30)
