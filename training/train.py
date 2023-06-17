@@ -3,6 +3,8 @@ from torch.utils.data import DataLoader
 
 from training.position_data_set import PosDataSet
 
+losses = []
+
 
 def get_data_set(repository):
     games = repository.get_games()
@@ -22,13 +24,13 @@ def train(net, repository):
     data_set = get_data_set(repository)
     if len(data_set) < 1:
         return
-    dataloader = DataLoader(data_set,batch_size=len(data_set), shuffle=True)
+    dataloader = DataLoader(data_set, batch_size=len(data_set), shuffle=True)
 
     for inputs, labels in dataloader:
         optimizer.zero_grad()
         outputs = net(inputs)
-        loss = criterion(outputs,  labels.view(-1, 1).float())
+        loss = criterion(outputs, labels.view(-1, 1).float())
+        losses.append(loss)
         print('loss vaule: ', loss)
         loss.backward()
         optimizer.step()
-

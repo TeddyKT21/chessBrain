@@ -50,7 +50,9 @@ class GameEngine:
                         if not self.study_start:
                             end_const = len(game['positions']) // 3 + 1
                             game['positions'] = game['positions'][-end_const:]
-                        self.repository.save_game(game)
+                    else:
+                        game['positions'] += [self.evaluator.bit_position.tolist()]
+                    self.repository.save_game(game)
                     break
             if n % 10 == 0:
                 print(n)

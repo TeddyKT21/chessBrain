@@ -8,14 +8,14 @@ from data_access.db_connection import Repository
 from game_engine.dummy_net import DummyNet
 from game_engine.eval_net import EvalNet
 from game_engine.search_engine import GameEngine
-from training.train import train
+from training.train import train, losses
 
 
 def main_program():
     for i in range(10):
         print(f"random epoc {i + 1}")
         repository = Repository(f"gameCollectionRandom{i}")
-        game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False, False)
+        game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -29,6 +29,9 @@ def main_program():
         print('training (on random) stage completed after: ', end - start)
         repository.save_model(net)
         print('-------------------------------------------------------------------------------------------------')
+
+    print('loss progression: ', losses)
+    print('-------------------------------------------------------------------------------------------------')
 
     epochs = 1000
     repository = Repository(f"gameCollection0")
