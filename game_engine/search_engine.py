@@ -8,7 +8,7 @@ from move_generation.short_board import ShortBoard
 
 
 class GameEngine:
-    def __init__(self, repository, eval_net, iterations=1, game_length_limit=250, save_freq=15, training=True):
+    def __init__(self, repository, eval_net, iterations=1, game_length_limit=250, save_freq=15, training=True, study_start=True):
         self.board = None
         self.move_generator = None
         self.iterations = iterations
@@ -18,6 +18,7 @@ class GameEngine:
         self.game_length_limit = game_length_limit
         self.save_freq = save_freq
         self.training = training
+        self.study_start = study_start
 
     def _make_move(self):
         selected_move_index = self._get_move(self.move_generator.move_array)
@@ -45,6 +46,10 @@ class GameEngine:
                 k += 1
                 if not self.move_generator.move_array:
                     if game['result']:
+                        game['positions'] += (self.evaluator.bit_position.tolist())
+                        if not self.study_start:
+                            end_const = len(game['positions']) // 3 + 1
+                            game['positions'] = game['positions'][-end_const:]
                         self.repository.save_game(game)
                     break
             if n % 10 == 0:

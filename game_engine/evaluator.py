@@ -65,7 +65,7 @@ class Evaluator:
 
     def revert_state(self):
         for step in self.state_reverse:
-            self.bit_position[0,step[0]] = step[1]
+            self.bit_position[0, step[0]] = step[1]
 
     def update_position(self, move):
         for change in move:

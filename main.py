@@ -13,9 +13,9 @@ from training.train import train
 
 def main_program():
     for i in range(10):
-        print(f"random epoc {i}")
-        repository = Repository(f"gameCollectionRandom{0}")
-        game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False)
+        print(f"random epoc {i + 1}")
+        repository = Repository(f"gameCollectionRandom{i}")
+        game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -30,7 +30,7 @@ def main_program():
         repository.save_model(net)
         print('-------------------------------------------------------------------------------------------------')
 
-    epochs = 100
+    epochs = 1000
     repository = Repository(f"gameCollection0")
     for epoch in range(epochs):
         print(f'starting epoc {epoch + 1}:')
@@ -51,7 +51,6 @@ def main_program():
 
         repository.save_model(net)
         print('-------------------------------------------------------------------------------------------------')
-
 
 
 start = time.time()

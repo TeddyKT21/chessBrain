@@ -32,4 +32,5 @@ class Repository:
         if os.path.exists(model_save_location):
             model.load_state_dict(torch.load(model_save_location))
         model.eval()
+        # model.printModel()
         return model

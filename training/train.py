@@ -28,6 +28,7 @@ def train(net, repository):
         optimizer.zero_grad()
         outputs = net(inputs)
         loss = criterion(outputs,  labels.view(-1, 1).float())
+        print('loss vaule: ', loss)
         loss.backward()
         optimizer.step()
 
