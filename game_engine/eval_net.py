@@ -38,13 +38,13 @@ class EvalNet(nn.Module):
         res = torch.from_numpy(data)
         for layer in self.layers[:-1]:
             res = layer(res)
-        res = F.sigmoid(self.layer7(res))
+        res = F.tanh(self.layer7(res))
         return res
 
     def forward(self, data):
         for layer in self.layers[:-1]:
             data = layer(data)
-        data = F.sigmoid(self.layer7(data))
+        data = F.tanh(self.layer7(data))
         return data
 
     def printModel(self):
