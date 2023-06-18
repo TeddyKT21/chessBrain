@@ -18,8 +18,8 @@ class EvalNet(nn.Module):
     def __init__(self):
         super(EvalNet, self).__init__()
         self.layer1 = nn.Linear(789, 800, dtype=torch.float32)
-        self.layer2 = nn.Linear(800, 800, dtype=torch.float32)
-        self.layer3 = nn.Linear(800, 600, dtype=torch.float32)
+        self.layer2 = nn.Linear(800, 1000, dtype=torch.float32)
+        self.layer3 = nn.Linear(1000, 600, dtype=torch.float32)
         self.layer4 = nn.Linear(600, 400, dtype=torch.float32)
         self.layer5 = nn.Linear(400, 200, dtype=torch.float32)
         self.layer6 = nn.Linear(200, 100, dtype=torch.float32)
@@ -37,13 +37,13 @@ class EvalNet(nn.Module):
     def predict(self, data):
         res = torch.from_numpy(data)
         for layer in self.layers[:-1]:
-            res = layer(res)
+            res = F.tanh(layer(res))
         res = F.tanh(self.layer7(res))
         return res
 
     def forward(self, data):
         for layer in self.layers[:-1]:
-            data = layer(data)
+            data = F.tanh(layer(data))
         data = F.tanh(self.layer7(data))
         return data
 

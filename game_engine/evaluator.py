@@ -47,7 +47,6 @@ class Evaluator:
     def evaluate(self, move):
         self.update_position(move)
         result = self.eval_net.predict(self.bit_position)
-        # result = random.uniform(-1, 1)
         self.revert_position(move)
         return result
 

@@ -20,7 +20,7 @@ def get_data_set(repository):
 
 def train(net, repository):
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=0.0005, momentum=0.3)
     data_set = get_data_set(repository)
     if len(data_set) < 1:
         return

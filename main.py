@@ -12,10 +12,10 @@ from training.train import train, losses
 
 
 def main_program():
-    for i in range(10):
+    for i in range(0):
         print(f"random epoc {i + 1}")
         repository = Repository(f"gameCollectionRandom{i}")
-        game_engine = GameEngine(repository, DummyNet(), 100000, 400, 30, False)
+        game_engine = GameEngine(repository, DummyNet(), 10000, 400, 30, False, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -40,7 +40,7 @@ def main_program():
         game_collection = f"gameCollection{epoch}"
         net = repository.get_model()
         repository = Repository(game_collection)
-        game_engine = GameEngine(repository, net, 500, 400, 30)
+        game_engine = GameEngine(repository, net, 50, 400, 30)
 
         start = time.time()
         game_engine.play()

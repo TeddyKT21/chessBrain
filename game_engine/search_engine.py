@@ -46,13 +46,12 @@ class GameEngine:
                 k += 1
                 if not self.move_generator.move_array:
                     if game['result']:
-                        game['positions'] += (self.evaluator.bit_position.tolist())
                         if not self.study_start:
                             end_const = len(game['positions']) // 3 + 1
                             game['positions'] = game['positions'][-end_const:]
-                    else:
-                        game['positions'] += [self.evaluator.bit_position.tolist()]
-                    self.repository.save_game(game)
+                        if len(game['positions']) > 5:
+                            game['positions'] = random.choices(game['positions'], k=5)
+                        self.repository.save_game(game)
                     break
             if n % 10 == 0:
                 print(n)
@@ -78,6 +77,8 @@ class GameEngine:
         return np.argmax(refactored_values) if not self.training else self._get_training_move(refactored_values)
 
     def _get_training_move(self, move_values):
+        if random.uniform(0, 1) > 0.7:
+            return np.argmax(move_values)
         total = sum(move_values)
         random_num = random.uniform(0, total)
         total = 0
