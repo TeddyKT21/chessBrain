@@ -5,17 +5,19 @@ import cProfile
 import re
 
 from data_access.db_connection import Repository
+from game_engine.dummy_evaluator import DummyEvaluator
 from game_engine.dummy_net import DummyNet
 from game_engine.eval_net import EvalNet
+from game_engine.evaluator import Evaluator
 from game_engine.search_engine import GameEngine
 from training.train import train, losses
 
 
 def main_program():
-    for i in range(0):
+    for i in range(10):
         print(f"random epoc {i + 1}")
         repository = Repository(f"gameCollectionRandom{i}")
-        game_engine = GameEngine(repository, DummyNet(), 10000, 400, 30, False, False)
+        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 500, 400, 20, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -35,12 +37,12 @@ def main_program():
 
     epochs = 1000
     repository = Repository(f"gameCollection0")
-    for epoch in range(epochs):
+    for epoch in range(128, epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
         net = repository.get_model()
         repository = Repository(game_collection)
-        game_engine = GameEngine(repository, net, 50, 400, 30)
+        game_engine = GameEngine(repository, net, Evaluator, 1000, 400, 8)
 
         start = time.time()
         game_engine.play()

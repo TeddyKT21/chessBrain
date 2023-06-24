@@ -17,13 +17,13 @@ def init_weights(m):
 class EvalNet(nn.Module):
     def __init__(self):
         super(EvalNet, self).__init__()
-        self.layer1 = nn.Linear(789, 800, dtype=torch.float32)
-        self.layer2 = nn.Linear(800, 1000, dtype=torch.float32)
-        self.layer3 = nn.Linear(1000, 600, dtype=torch.float32)
-        self.layer4 = nn.Linear(600, 400, dtype=torch.float32)
-        self.layer5 = nn.Linear(400, 200, dtype=torch.float32)
-        self.layer6 = nn.Linear(200, 100, dtype=torch.float32)
-        self.layer7 = nn.Linear(100, 1, dtype=torch.float32)
+        self.layer1 = nn.Linear(789, 800, )
+        self.layer2 = nn.Linear(800, 1000, )
+        self.layer3 = nn.Linear(1000, 600, )
+        self.layer4 = nn.Linear(600, 400, )
+        self.layer5 = nn.Linear(400, 200, )
+        self.layer6 = nn.Linear(200, 100,)
+        self.layer7 = nn.Linear(100, 1, )
         self.layers = [self.layer1,
                        self.layer2,
                        self.layer3,
@@ -35,7 +35,7 @@ class EvalNet(nn.Module):
 
     @torch.no_grad()
     def predict(self, data):
-        res = torch.from_numpy(data)
+        res = torch.from_numpy(data).to(self.layer1.weight.dtype)
         for layer in self.layers[:-1]:
             res = F.tanh(layer(res))
         res = F.tanh(self.layer7(res))

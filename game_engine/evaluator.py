@@ -44,11 +44,24 @@ class Evaluator:
         self.bit_position = generate_bit_position(short_board)
         self.state_reverse = []
 
-    def evaluate(self, move):
-        self.update_position(move)
-        result = self.eval_net.predict(self.bit_position)
-        self.revert_position(move)
-        return result
+    def evaluate(self, move_array):
+        current_position = self.bit_position.copy()
+        possible_positions = np.ndarray((len(move_array), len(self.bit_position[0])), dtype=float)
+        for i in range(len(move_array)):
+            move = move_array[i]
+            self.update_position(move)
+            possible_positions[i] = self.bit_position[0]
+            self.bit_position = current_position.copy()
+        return self.eval_net.predict(possible_positions).numpy().flatten()
+
+    # def evaluate(self, move_array):
+    #     move_values = np.zeros(len(move_array), float)
+    #     for i in range(len(move_array)):
+    #         move = move_array[i]
+    #         self.update_position(move)
+    #         move_values[i] = self.eval_net.predict(self.bit_position)
+    #         self.revert_position(move)
+    #     return move_values
 
     def revert_position(self, move):
         for change in move:
