@@ -17,34 +17,43 @@ def init_weights(m):
 class EvalNet(nn.Module):
     def __init__(self):
         super(EvalNet, self).__init__()
+        # self.dropout1 = nn.Dropout(p=0.3)
         self.layer1 = nn.Linear(789, 800, )
         self.layer2 = nn.Linear(800, 1000, )
-        self.layer3 = nn.Linear(1000, 600, )
-        self.layer4 = nn.Linear(600, 400, )
-        self.layer5 = nn.Linear(400, 200, )
-        self.layer6 = nn.Linear(200, 100,)
-        self.layer7 = nn.Linear(100, 1, )
+        self.layer3 = nn.Linear(1000, 1200, )
+        # self.layer4 = nn.Linear(1000, 1000, )
+        self.layer5 = nn.Linear(1200, 800, )
+        self.layer6 = nn.Linear(800, 600, )
+        self.layer7 = nn.Linear(600, 400, )
+        self.layer8 = nn.Linear(400, 200,)
+        self.layer9 = nn.Linear(200, 1, )
         self.layers = [self.layer1,
                        self.layer2,
                        self.layer3,
-                       self.layer4,
+                       # self.layer4,
                        self.layer5,
                        self.layer6,
-                       self.layer7]
+                       self.layer7,
+                       self.layer8,
+                       self.layer9]
+        self.start_tanh = 2
         self.apply(init_weights)
+        self.eval()
 
     @torch.no_grad()
     def predict(self, data):
         res = torch.from_numpy(data).to(self.layer1.weight.dtype)
-        for layer in self.layers[:-1]:
+        for layer in self.layers[:-self.start_tanh]:
+            res = F.leaky_relu(layer(res))
+        for layer in self.layers[-self.start_tanh:]:
             res = F.tanh(layer(res))
-        res = F.tanh(self.layer7(res))
         return res
 
     def forward(self, data):
-        for layer in self.layers[:-1]:
+        for layer in self.layers[:-self.start_tanh]:
+            data = F.leaky_relu(layer(data))
+        for layer in self.layers[-self.start_tanh:]:
             data = F.tanh(layer(data))
-        data = F.tanh(self.layer7(data))
         return data
 
     def printModel(self):

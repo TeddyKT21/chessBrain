@@ -17,7 +17,7 @@ def main_program():
     for i in range(10):
         print(f"random epoc {i + 1}")
         repository = Repository(f"gameCollectionRandom{i}")
-        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 500, 400, 20, False)
+        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 40000, 400, 20, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -37,7 +37,7 @@ def main_program():
 
     epochs = 1000
     repository = Repository(f"gameCollection0")
-    for epoch in range(128, epochs):
+    for epoch in range(0, epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
         net = repository.get_model()

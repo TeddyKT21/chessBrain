@@ -8,7 +8,8 @@ from move_generation.short_board import ShortBoard
 
 
 class GameEngine:
-    def __init__(self, repository, eval_net, evaluator_type, iterations=1, game_length_limit=250, save_freq=15, training=True, study_start=True):
+    def __init__(self, repository, eval_net, evaluator_type, iterations=1, game_length_limit=250, save_freq=15,
+                 training=True, study_start=True):
         self.evaluator = None
         self.board = None
         self.move_generator = None
@@ -37,16 +38,17 @@ class GameEngine:
             while k < self.game_length_limit:
                 self._make_move()
                 # print(self.move_generator.short_board, f'move number {k}')
+                if self.check_draw():
+                    break
                 if not self.move_generator.move_array:
                     game['result'] = self.get_result()
-                if len(self.move_generator.piece_array) < 3:
-                    break
                 num = random.randint(0, self.save_freq)
                 if num == self.save_freq:
                     game['positions'] += (self.evaluator.bit_position.tolist())
                 k += 1
                 if not self.move_generator.move_array:
                     if game['result']:
+                        game['positions'] += (self.evaluator.bit_position.tolist())
                         if not self.study_start:
                             end_const = len(game['positions']) // 3 + 1
                             game['positions'] = game['positions'][-end_const:]
@@ -85,3 +87,27 @@ class GameEngine:
             if total >= random_num:
                 return index
         print('total: ', total, ' random num: ', random_num)
+
+    def check_draw(self):
+        number_of_pieces = len(self.move_generator.piece_array)
+        if number_of_pieces < 3:
+            return True
+        indexes = [2, 3]
+        if number_of_pieces == 3:
+            third_piece = [p for p in self.move_generator.piece_array if p != self.move_generator.white_king and
+                           p != self.move_generator.black_king][0]
+            if third_piece.piece_index in indexes:
+                return True
+        if number_of_pieces == 4:
+            other_pieces = [p for p in self.move_generator.piece_array if p != self.move_generator.white_king and
+                            p != self.move_generator.black_king]
+            p1 = other_pieces[0]
+            p2 = other_pieces[1]
+            if p1.piece_index in indexes and p2.piece_index in indexes:
+                if p1.color_bit != p2.color_bit:
+                    return True
+                if p1.piece_index != p2.piece_index:
+                    return False
+                if (abs(p1.i - p2.i) + abs(p1.j - p2.j)) % 2 == 0:
+                    return True
+        return False

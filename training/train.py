@@ -19,6 +19,8 @@ def get_data_set(repository):
 
 
 def train(net, repository):
+    net.train()
+
     criterion = nn.MSELoss()
     optimizer = optim.SGD(net.parameters(), lr=0.0005, momentum=0.3)
     data_set = get_data_set(repository)
@@ -34,3 +36,5 @@ def train(net, repository):
         print('loss vaule: ', loss)
         loss.backward()
         optimizer.step()
+
+    net.eval()
