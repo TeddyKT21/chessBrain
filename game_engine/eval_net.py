@@ -20,23 +20,23 @@ class EvalNet(nn.Module):
         # self.dropout1 = nn.Dropout(p=0.3)
         self.layer1 = nn.Linear(789, 800, )
         self.layer2 = nn.Linear(800, 1000, )
-        self.layer3 = nn.Linear(1000, 1200, )
+        self.layer3 = nn.Linear(1000, 800, )
         # self.layer4 = nn.Linear(1000, 1000, )
-        self.layer5 = nn.Linear(1200, 800, )
+        # self.layer5 = nn.Linear(1200, 800, )
         self.layer6 = nn.Linear(800, 600, )
         self.layer7 = nn.Linear(600, 400, )
-        self.layer8 = nn.Linear(400, 200,)
-        self.layer9 = nn.Linear(200, 1, )
+        self.layer8 = nn.Linear(400, 300,)
+        self.layer9 = nn.Linear(300, 1, )
         self.layers = [self.layer1,
                        self.layer2,
                        self.layer3,
                        # self.layer4,
-                       self.layer5,
+                       # self.layer5,
                        self.layer6,
                        self.layer7,
                        self.layer8,
                        self.layer9]
-        self.start_tanh = 2
+        self.start_tanh = 7
         self.apply(init_weights)
         self.eval()
 

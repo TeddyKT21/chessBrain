@@ -42,13 +42,13 @@ class GameEngine:
                     break
                 if not self.move_generator.move_array:
                     game['result'] = self.get_result()
-                num = random.randint(0, self.save_freq)
-                if num == self.save_freq:
-                    game['positions'] += (self.evaluator.bit_position.tolist())
+                else:
+                    num = random.randint(0, self.save_freq)
+                    if num == self.save_freq:
+                        game['positions'] += (self.evaluator.bit_position.tolist())
                 k += 1
                 if not self.move_generator.move_array:
                     if game['result']:
-                        game['positions'] += (self.evaluator.bit_position.tolist())
                         if not self.study_start:
                             end_const = len(game['positions']) // 3 + 1
                             game['positions'] = game['positions'][-end_const:]

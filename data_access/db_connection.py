@@ -13,8 +13,8 @@ model_save_location = 'evalNet.pt'
 
 
 class Repository:
-    def __init__(self, game_collection):
-        if game_collection in db.list_collection_names():
+    def __init__(self, game_collection, drop=True):
+        if game_collection in db.list_collection_names() and drop:
             db[game_collection].drop()
         self.game_collection = game_collection
 
