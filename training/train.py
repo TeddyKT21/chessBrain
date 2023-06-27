@@ -7,7 +7,8 @@ from torch.utils.data import random_split
 losses = []
 test_losses = []
 
-def get_data_set(repository_arr):
+
+def get_data_sets(repository_arr):
     positions_arr = []
     results_arr = []
     for i in range(len(repository_arr)):
@@ -17,7 +18,21 @@ def get_data_set(repository_arr):
             positions_arr += positions
             for position in positions:
                 results_arr.append(game['result'])
-    return PosDataSet(positions_arr, results_arr)
+    val_len = 0
+    if len(repository_arr) == 1:
+        val_len = min((len(positions_arr) // 4), 1000)
+    else:
+        last_len = 0
+        games = repository_arr[-1].get_games()
+        for game in games:
+            last_len += len(game['positions'])
+
+        val_len = min((last_len // 4), 1000)
+        positions_arr = positions_arr[:-(last_len - val_len)]
+        results_arr = results_arr[:-(last_len - val_len)]
+
+    return PosDataSet(positions_arr[:-val_len], results_arr[:-val_len]), \
+           PosDataSet(positions_arr[-val_len:], results_arr[-val_len:])
 
 
 def train(net, repository_arr):
@@ -26,16 +41,17 @@ def train(net, repository_arr):
     eval_losses = []
 
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.001)
-    data_set = get_data_set(repository_arr)
-    val_size = 100 if len(data_set) < 1000 else 500
-    if len(data_set) < 100:
-        return
-    train_data, val_data = random_split(data_set, [len(data_set) - val_size, val_size])
-    test_loader = DataLoader(val_data, batch_size=val_size, shuffle=True)
+    optimizer = optim.Adam(net.parameters(), lr=0.0005)
+    train_data, val_data = get_data_sets(repository_arr)
+    test_loader = DataLoader(val_data, batch_size=len(val_data))
 
-    for epoch in range(50):
-        train_loader = DataLoader(train_data, batch_size=50, shuffle=True)
+    min_val_loss = 4
+    stop_count = 10
+    batch_size = len(train_data) // 50
+    for epoch in range(120):
+        if not stop_count:
+            break
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         epoch_losses = []
 
         for batch in train_loader:
@@ -52,6 +68,9 @@ def train(net, repository_arr):
         for inputs, labels in test_loader:
             outputs = net(inputs)
             loss = criterion(outputs, labels.view(-1, 1).float())
+            stop_count = 10 if loss.item() < min_val_loss else stop_count - 1
+            min_val_loss = min(min_val_loss, loss.item())
+
             eval_losses.append(loss.item())
 
     losses.append(train_losses[-1])

@@ -17,7 +17,7 @@ def init_weights(m):
 class EvalNet(nn.Module):
     def __init__(self):
         super(EvalNet, self).__init__()
-        # self.dropout1 = nn.Dropout(p=0.3)
+        self.dropout1 = nn.Dropout(p=0.4)
         self.layer1 = nn.Linear(789, 800, )
         self.layer2 = nn.Linear(800, 1000, )
         self.layer3 = nn.Linear(1000, 800, )
@@ -51,9 +51,9 @@ class EvalNet(nn.Module):
 
     def forward(self, data):
         for layer in self.layers[:-self.start_tanh]:
-            data = F.leaky_relu(layer(data))
+            data = self.dropout1(F.leaky_relu(layer(data)))
         for layer in self.layers[-self.start_tanh:]:
-            data = F.tanh(layer(data))
+            data = self.dropout1(F.tanh(layer(data)))
         return data
 
     def printModel(self):

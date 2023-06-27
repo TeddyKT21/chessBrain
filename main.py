@@ -12,13 +12,13 @@ from game_engine.search_engine import GameEngine
 from training.train import train, losses,test_losses
 
 
-def get_repositories(epoch):
+def get_repositories(epoch, count=1):
     repositories = []
-    if epoch < 10:
+    if epoch < count:
         for i in range(epoch + 1):
             repositories.append(Repository(f"gameCollection{i}", False))
     else:
-        for i in range(epoch - 10,epoch + 1):
+        for i in range(epoch - count + 1, epoch + 1):
             repositories.append(Repository(f"gameCollection{i}", False))
     return repositories
 
@@ -27,7 +27,7 @@ def main_program():
     for i in range(10):
         print(f"random epoc {i + 1}")
         repository = Repository(f"gameCollectionRandom{i}")
-        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 40000, 400, 20, False)
+        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 40000, 400, 12, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -46,14 +46,14 @@ def main_program():
     print('test loss progression: ', test_losses)
     print('-------------------------------------------------------------------------------------------------')
 
-    epochs = 1000
+    epochs = 100
     repository = Repository(f"gameCollection0")
-    for epoch in range(20, epochs):
+    for epoch in range(epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
         net = repository.get_model()
         repository = Repository(game_collection)
-        game_engine = GameEngine(repository, net, Evaluator, 1000, 400, 8)
+        game_engine = GameEngine(repository, net, Evaluator, 10000, 400, 8)
 
         start = time.time()
         game_engine.play()
@@ -61,7 +61,7 @@ def main_program():
         print('play stage completed after: ', end - start)
 
         start = time.time()
-        repositories = get_repositories(epoch)
+        repositories = get_repositories(epoch, 1)
         train(net, repositories)
         end = time.time()
         print('training  stage completed after: ', end - start)
