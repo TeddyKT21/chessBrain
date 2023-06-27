@@ -47,7 +47,7 @@ def train(net, repository_arr):
 
     min_val_loss = 4
     stop_count = 10
-    batch_size = len(train_data) // 50
+    batch_size = min(len(train_data) // 50, 50)
     for epoch in range(120):
         if not stop_count:
             break
@@ -66,12 +66,13 @@ def train(net, repository_arr):
         train_losses.append(sum(epoch_losses) / len(epoch_losses))
 
         for inputs, labels in test_loader:
+            net.eval()
             outputs = net(inputs)
             loss = criterion(outputs, labels.view(-1, 1).float())
             stop_count = 10 if loss.item() < min_val_loss else stop_count - 1
             min_val_loss = min(min_val_loss, loss.item())
-
             eval_losses.append(loss.item())
+            net.train()
 
     losses.append(train_losses[-1])
     test_losses.append(eval_losses[-1])

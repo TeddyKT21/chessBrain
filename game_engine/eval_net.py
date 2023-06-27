@@ -37,6 +37,7 @@ class EvalNet(nn.Module):
                        self.layer8,
                        self.layer9]
         self.start_tanh = 7
+        self.start_dropout = 1
         self.apply(init_weights)
         self.eval()
 
@@ -50,10 +51,14 @@ class EvalNet(nn.Module):
         return res
 
     def forward(self, data):
-        for layer in self.layers[:-self.start_tanh]:
-            data = self.dropout1(F.leaky_relu(layer(data)))
-        for layer in self.layers[-self.start_tanh:]:
-            data = self.dropout1(F.tanh(layer(data)))
+        for i, layer in self.layers[:-self.start_tanh]:
+            data = F.leaky_relu(layer(data))
+            if i >= self.start_dropout:
+                data = self.dropout1(data)
+        for i, layer in self.layers[-self.start_tanh:]:
+            data = F.tanh(layer(data))
+            if i >= self.start_dropout:
+                data = self.dropout1(data)
         return data
 
     def printModel(self):
