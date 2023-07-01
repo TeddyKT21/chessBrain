@@ -18,39 +18,40 @@ def get_data_sets(repository_arr):
             positions_arr += positions
             for position in positions:
                 results_arr.append(game['result'])
-    val_len = 0
-    if len(repository_arr) == 1:
-        val_len = min((len(positions_arr) // 4), 1000)
-    else:
-        last_len = 0
-        games = repository_arr[-1].get_games()
-        for game in games:
-            last_len += len(game['positions'])
 
-        val_len = min((last_len // 4), 1000)
-        positions_arr = positions_arr[:-(last_len - val_len)]
-        results_arr = results_arr[:-(last_len - val_len)]
+
+
+    last_len = 0
+    games = repository_arr[-1].get_games()
+    for game in games:
+        last_len += len(game['positions'])
+
+    val_len = min((last_len // 4), 2000) if last_len < 25000 else min((last_len // 10), 5000)
 
     return PosDataSet(positions_arr[:-val_len], results_arr[:-val_len]), \
            PosDataSet(positions_arr[-val_len:], results_arr[-val_len:])
 
 
-def train(net, repository_arr):
+def train(net, repository_arr, initial_stop_count=8, min_buffer=1.01):
     net.train()
     train_losses = []
     eval_losses = []
+    stop_count = initial_stop_count
 
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.0005)
+    optimizer = optim.SGD(net.parameters(), lr=0.003, momentum=0.6)
+    # optimizer = optim.Adam(net.parameters(), lr=0.003)
     train_data, val_data = get_data_sets(repository_arr)
     test_loader = DataLoader(val_data, batch_size=len(val_data))
 
     min_val_loss = 4
-    stop_count = 10
     batch_size = min(len(train_data) // 50, 50)
     for epoch in range(120):
         if not stop_count:
+            print('early stop because of steady error streak')
             break
+
+        info_string = f'epoch {epoch}: '
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         epoch_losses = []
 
@@ -63,16 +64,35 @@ def train(net, repository_arr):
             loss.backward()
             optimizer.step()
 
-        train_losses.append(sum(epoch_losses) / len(epoch_losses))
+        avg = sum(epoch_losses) / len(epoch_losses)
+        train_losses.append(avg)
+        info_string += f'train_error: {avg}, '
 
         for inputs, labels in test_loader:
             net.eval()
             outputs = net(inputs)
             loss = criterion(outputs, labels.view(-1, 1).float())
-            stop_count = 10 if loss.item() < min_val_loss else stop_count - 1
-            min_val_loss = min(min_val_loss, loss.item())
+            info_string += f'val_error: {loss.item()}'
+
+            if (loss.item() * min_buffer) < min_val_loss:
+                stop_count = initial_stop_count - 1
+                min_val_loss = min(min_val_loss, loss.item())
+            else:
+                stop_count = stop_count - 1
+
             eval_losses.append(loss.item())
             net.train()
+
+        print(info_string)
+        separation_len = initial_stop_count // 2 + 1
+        if len(eval_losses) > separation_len:
+            force_stop = True
+            for i in range(len(eval_losses) - 1, len(eval_losses) - separation_len, -1):
+                if eval_losses[i] - eval_losses[i - 1] < min_buffer:
+                    force_stop = False
+            if force_stop:
+                print('early stop because of error increase')
+                break
 
     losses.append(train_losses[-1])
     test_losses.append(eval_losses[-1])

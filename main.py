@@ -24,10 +24,10 @@ def get_repositories(epoch, count=1):
 
 
 def main_program():
-    for i in range(5):
+    for i in range(10, 10):
         print(f"random epoc {i + 1}")
-        repository = Repository(f"gameCollectionRandom{i}")
-        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 50000, 400, 12, False)
+        repository = Repository(f"gameCollectionRandom{i}", False)
+        game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 0, 400, 10, False)
         start = time.time()
         game_engine.play()
         end = time.time()
@@ -47,13 +47,14 @@ def main_program():
     print('-------------------------------------------------------------------------------------------------')
 
     epochs = 100
-    repository = Repository(f"gameCollection0")
-    for epoch in range(epochs):
+    repository = Repository(f"gameCollection0", False)
+    for epoch in range(2, epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
         net = repository.get_model()
+        net.eval()
         repository = Repository(game_collection)
-        game_engine = GameEngine(repository, net, Evaluator, 10000, 400, 8)
+        game_engine = GameEngine(repository, net, Evaluator, 1500, 500, 10)
 
         start = time.time()
         game_engine.play()
