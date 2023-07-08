@@ -61,3 +61,13 @@ def move_turn(short_board):
     else:
         short_board.state -= 1
     return
+
+
+def is_same_move(m1, m2):
+    if m1 == m2:
+        return True
+    if len(m1) != len(m2):
+        return False
+    if len(m1) == 4:
+        return m1[0][0] == m2[0][0] and m1[0][1] == m2[0][1]
+    return m1[0][0] == m2[0][0] and m1[0][1] == m2[0][1] and m1[1][0] == m2[1][0] and m1[1][1] == m2[1][1]

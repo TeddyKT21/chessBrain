@@ -1,6 +1,6 @@
 from move_generation.board_util import update_castle_state
 from move_generation.pieces import pieces
-from move_generation.converters import get_turn, move_turn, color_bit_dict
+from move_generation.converters import get_turn, move_turn, color_bit_dict, is_same_move
 from move_generation.short_board import board_size, ShortBoard
 
 
@@ -134,6 +134,13 @@ class MoveGenerator:
         relevant_color_pieces = self.white_pieces if eaten_color_bit == 0 else self.black_pieces
         relevant_color_pieces.append(eaten_piece)
         return
+
+    def make_move_non_index(self, move):
+        for index, m in enumerate(self.move_array):
+            if is_same_move(m, move):
+                self.make_move(index)
+                return
+        raise Exception('move not found !!')
 
     def make_move(self, index):
         turn = get_turn(self.short_board.state)
