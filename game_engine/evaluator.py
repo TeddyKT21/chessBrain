@@ -42,6 +42,7 @@ class Evaluator:
         self.eval_net = eval_net
         self.short_board = short_board
         self.bit_position = generate_bit_position(short_board)
+        self.previous_positions_stack = [self.bit_position]
         self.state_reverse = []
 
     def evaluate(self, move_array):
@@ -64,16 +65,17 @@ class Evaluator:
     #     return move_values
 
     def revert_position(self, move):
-        for change in move:
-            current_piece = self.short_board.short_array[change[0], change[1]]
-            if current_piece:
-                location = (change[0] * board_size + change[1]) * 12 + round(math.log(current_piece, 2))
-                self.bit_position[0, location] = 1
-            if change[2]:
-                location = (change[0] * board_size + change[1]) * 12
-                location += round(math.log(change[2], 2)) if change[2] else 0
-                self.bit_position[0, location] = 0
-            self.revert_state()
+        self.bit_position = self.previous_positions_stack.pop()
+        # for change in move:
+        #     current_piece = self.short_board.short_array[change[0], change[1]]
+        #     if current_piece:
+        #         location = (change[0] * board_size + change[1]) * 12 + round(math.log(current_piece, 2))
+        #         self.bit_position[0, location] = 1
+        #     if change[2]:
+        #         location = (change[0] * board_size + change[1]) * 12
+        #         location += round(math.log(change[2], 2)) if change[2] else 0
+        #         self.bit_position[0, location] = 0
+        #     self.revert_state()
 
     def revert_state(self):
         for step in self.state_reverse:
@@ -93,6 +95,7 @@ class Evaluator:
 
     def make_move(self, move):
         self.update_position(move)
+        self.previous_positions_stack.append(self.bit_position)
 
     def update_state(self, move):
         state = self.short_board.state

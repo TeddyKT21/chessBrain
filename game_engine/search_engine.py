@@ -44,8 +44,8 @@ class GameEngine:
             game = {'positions': [], 'result': 0}
             while k < self.game_length_limit:
                 self._make_move()
-                if self.games_tot % 150 == 0:
-                    print(self.move_generator.short_board, f'move number {k}')
+                # if self.games_tot % 150 == 0:
+                #     print(self.move_generator.short_board, f'move number {k}')
                 num = random.randint(0, self.save_freq)
                 if num == self.save_freq and self.move_generator.move_array:
                     game['positions'] += (self.evaluator.bit_position.tolist())
@@ -125,7 +125,7 @@ class GameEngine:
                 depth = self._rollback(depth, best_move)
                 new_node = parent_node
                 best_move_index = new_node.get_best_index()
-                if abs(parent_node.move_values[best_move_index]) == 1:
+                if abs(new_node.move_values[best_move_index]) in [0,1]:
                     break
                 parent_node = parent_node.parent
                 continue
