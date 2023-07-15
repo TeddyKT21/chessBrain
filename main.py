@@ -24,7 +24,7 @@ def get_repositories(epoch, count=1):
 
 
 def main_program():
-    for i in range(0, 10):
+    for i in range(0, 5):
         print(f"random epoc {i + 1}")
         repository = Repository(f"gameCollectionRandom{i}", False)
         game_engine = GameEngine(repository, DummyNet(), DummyEvaluator, 15000, 400, 10, False, tree_size=0)
@@ -47,14 +47,16 @@ def main_program():
     print('-------------------------------------------------------------------------------------------------')
 
     epochs = 100
-    repository = Repository(f"gameCollection0", False)
+    repository = Repository(f"gameCollection0")
     for epoch in range(0, epochs):
         print(f'starting epoc {epoch + 1}:')
         game_collection = f"gameCollection{epoch}"
         net = repository.get_model()
         net.eval()
         repository = Repository(game_collection)
-        game_engine = GameEngine(repository, net, Evaluator, 1500, 500, 5)
+        tree_size = 0 if epoch < 0 else 25
+
+        game_engine = GameEngine(repository, net, Evaluator, 1500, 500, 8, tree_size=tree_size)
 
         start = time.time()
         game_engine.play()
@@ -75,8 +77,8 @@ def main_program():
     print('-------------------------------------------------------------------------------------------------')
 
 
-start = time.time()
-main_program()
-end = time.time()
-print('total run time: ', end - start)
-# cProfile.run('re.compile(main_program())', sort='cumtime')
+# start = time.time()
+# main_program()
+# end = time.time()
+# print('total run time: ', end - start)
+cProfile.run('re.compile(main_program())', sort='cumtime')

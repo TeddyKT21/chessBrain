@@ -32,14 +32,14 @@ def get_data_sets(repository_arr):
            PosDataSet(positions_arr[-val_len:], results_arr[-val_len:])
 
 
-def train(net, repository_arr, initial_stop_count=8, min_buffer=1.01):
+def train(net, repository_arr, initial_stop_count=6, min_buffer=1.01):
     net.train()
     train_losses = []
     eval_losses = []
     stop_count = initial_stop_count
 
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.003, momentum=0.6)
+    optimizer = optim.SGD(net.parameters(), lr=0.004, momentum=0.4)
     # optimizer = optim.Adam(net.parameters(), lr=0.003)
     train_data, val_data = get_data_sets(repository_arr)
     test_loader = DataLoader(val_data, batch_size=len(val_data))

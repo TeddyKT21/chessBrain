@@ -29,7 +29,7 @@ class GameEngine:
         self.draws_tot = 0
 
     def _make_move(self):
-        selected_move_index = self._get_move(self.move_generator.move_array)
+        selected_move_index = self._get_move()
         selected_move = self.move_tree.move_array[selected_move_index]
         self.evaluator.make_move(selected_move)
         self.move_generator.make_move_non_index(selected_move)
@@ -87,9 +87,8 @@ class GameEngine:
             return -1
         return 0
 
-    def _get_move(self, move_array):
-        move_values = self.evaluator.evaluate(move_array)
-        self.move_tree = MoveTree(move_array, move_values, get_turn(self.move_generator.short_board.state))
+    def _get_move(self):
+        self.move_tree = self._create_node(None, -1)
         self.search()
         refactored_values = self.process_move_values(self.move_tree.move_values)
         return np.argmax(refactored_values) if not self.training else self._get_training_move(refactored_values)
@@ -124,12 +123,12 @@ class GameEngine:
                 parent_node.propagate()
                 depth = self._rollback(depth, best_move)
                 new_node = parent_node
-                best_move_index = new_node.get_best_index()
-                if abs(new_node.move_values[best_move_index]) in [0,1]:
-                    break
                 parent_node = parent_node.parent
+                best_move_index = new_node.get_best_index()
+                if abs(new_node.move_values[best_move_index]) in [0, 1]:
+                    break
                 continue
-            if best_move_index == new_node.get_best_index():  # the best move stayed the same
+            if best_move_index == new_node.index or new_node.index == -1:  # the best move stayed the same
                 parent_node = new_node
                 best_move_index = parent_node.get_best_index()
                 best_move = parent_node.move_array[best_move_index]
@@ -139,16 +138,14 @@ class GameEngine:
                     new_node = self._create_node(parent_node, best_move_index)
                     i += 1
                 else:
-                    parent_node = new_node
                     new_node = potential_new_node[0]
-                    best_move_index = new_node.get_best_index()
+                best_move_index = parent_node.get_best_index()
 
             else:                                                # the best move is now a different one
                 depth = self._rollback(depth, best_move)
-                best_move_index = parent_node.get_best_index()
-                best_move = parent_node.move_array[best_move_index]
                 new_node = parent_node
                 parent_node = parent_node.parent
+                best_move_index = parent_node.get_best_index() if parent_node else -1
 
         while depth:
             depth = self._rollback(depth, best_move)

@@ -37,6 +37,17 @@ def get_state_bits(bit_position, state):
         bit_position[0, -1 - i] = (state // math.pow(2, i)) % 2
 
 
+# def check_similarity(bit_pos_array):
+#     for i, bit_pos in enumerate(bit_pos_array):
+#         for j, other_bit_pos in enumerate(bit_pos_array[i + 1:]):
+#             bool_arr = bit_pos == other_bit_pos
+#             are_similar = not (False in bool_arr)
+#             if are_similar:
+#                 print(f'are_similar :{are_similar}, indexes: {i} {j + i + 1}')
+#                 # raise Exception(f'holy crap they are the same {i} {j + i + 1}')
+#     return False
+
+
 class Evaluator:
     def __init__(self, eval_net, short_board):
         self.eval_net = eval_net
@@ -47,12 +58,13 @@ class Evaluator:
 
     def evaluate(self, move_array):
         current_position = self.bit_position.copy()
-        possible_positions = np.ndarray((len(move_array), len(self.bit_position[0])), dtype=float)
+        possible_positions = np.zeros((len(move_array), len(self.bit_position[0])), dtype=float, )
         for i in range(len(move_array)):
             move = move_array[i]
             self.update_position(move)
             possible_positions[i] = self.bit_position[0]
             self.bit_position = current_position.copy()
+        # are_similar = check_similarity(possible_positions)
         return self.eval_net.predict(possible_positions).numpy().flatten()
 
     # def evaluate(self, move_array):
@@ -65,7 +77,8 @@ class Evaluator:
     #     return move_values
 
     def revert_position(self, move):
-        self.bit_position = self.previous_positions_stack.pop()
+        self.previous_positions_stack.pop()
+        self.bit_position = self.previous_positions_stack[-1].copy()
         # for change in move:
         #     current_piece = self.short_board.short_array[change[0], change[1]]
         #     if current_piece:
@@ -95,7 +108,7 @@ class Evaluator:
 
     def make_move(self, move):
         self.update_position(move)
-        self.previous_positions_stack.append(self.bit_position)
+        self.previous_positions_stack.append(self.bit_position.copy())
 
     def update_state(self, move):
         state = self.short_board.state
@@ -121,7 +134,7 @@ class Evaluator:
 
     def check_en_passant(self, move, piece_color):
         if move[0][1] < board_size - 1:
-            other_piece = self.short_board.short_array[move[0][1] + 1, move[0][0]]
+            other_piece = self.short_board.short_array[move[0][0], move[0][1] + 1]
             other_piece_index = short_piece_to_index_dict[other_piece]
             other_piece_color = color_bit_dict[other_piece]
             if other_piece_index == 1 and other_piece_color != piece_color:

@@ -16,11 +16,13 @@ def build_locations_arr(i, j, color_bit):
     return result
 
 
+white_promotion_options = [piece_dict['knight']['white'], piece_dict['bishop']['white'],
+                           piece_dict['rook']['white'], piece_dict['queen']['white']]
+black_promotion_options = [piece_dict['knight']['black'], piece_dict['bishop']['black'],
+                           piece_dict['rook']['black'], piece_dict['queen']['black']]
+
+
 def add_promotions(i, j, k, m, color_bit):
-    white_promotion_options = [piece_dict['knight']['white'], piece_dict['bishop']['white'],
-                               piece_dict['rook']['white'], piece_dict['queen']['white']]
-    black_promotion_options = [piece_dict['knight']['black'], piece_dict['bishop']['black'],
-                               piece_dict['rook']['black'], piece_dict['queen']['black']]
     promotion_options = white_promotion_options if color_bit == 0 else black_promotion_options
     possible_promotion_moves = []
     for option in promotion_options:
@@ -145,7 +147,7 @@ class Pawn(Piece):
         if not_edge:
             other_piece = self.short_board.short_array[i + vertical_direction, j + horizontal_direction]
             if other_piece != 0 and color_bit_dict[other_piece] != color_bit:
-                if i == last_row - vertical_direction:
+                if i == (last_row - vertical_direction):
                     moves += add_promotions(i, j, i + vertical_direction, j + horizontal_direction, color_bit)
                 else:
                     moves.append(((i + vertical_direction, j + horizontal_direction, value), (i, j, 0)))
