@@ -58,7 +58,7 @@ class Evaluator:
 
     def evaluate(self, move_array):
         current_position = self.bit_position.copy()
-        possible_positions = np.zeros((len(move_array), len(self.bit_position[0])), dtype=float, )
+        possible_positions = np.ndarray((len(move_array), len(self.bit_position[0])), dtype=float, )
         for i in range(len(move_array)):
             move = move_array[i]
             self.update_position(move)

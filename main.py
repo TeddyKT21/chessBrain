@@ -54,7 +54,7 @@ def main_program():
         net = repository.get_model()
         net.eval()
         repository = Repository(game_collection)
-        tree_size = 0 if epoch < 0 else 25
+        tree_size = 0 if epoch < 0 else 12
 
         game_engine = GameEngine(repository, net, Evaluator, 1500, 500, 8, tree_size=tree_size)
 
@@ -77,8 +77,8 @@ def main_program():
     print('-------------------------------------------------------------------------------------------------')
 
 
-# start = time.time()
-# main_program()
-# end = time.time()
-# print('total run time: ', end - start)
-cProfile.run('re.compile(main_program())', sort='cumtime')
+start = time.time()
+main_program()
+end = time.time()
+print('total run time: ', end - start)
+# cProfile.run('re.compile(main_program())', sort='cumtime')
